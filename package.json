@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/augmt/yats-ms/issues"
   },
-  "homepage": "https://github.com/augmt/yats-ms#readme"
+  "homepage": "https://github.com/augmt/yats-ms#readme",
+  "dependencies": {
+    "pug": "2.0.0-beta3"
+  }
 }
