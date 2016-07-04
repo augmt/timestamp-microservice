@@ -3,7 +3,7 @@
 [1]: https://www.freecodecamp.com/challenges/timestamp-microservice
 
 Visit this site with [any integer or valid dateString][2] in the [URL path][3]
-to see JSON about that point in time.
+to see JSON data about that point in time.
 
 [2]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#Parameters
 [3]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax
