@@ -1,18 +1,27 @@
-Timestamp Microservice
-======================
+# Timestamp Microservice
 
-Convert unix timestamps to date strings and vice-versa.
+Timestamp Microservice converts Unix timestamps to date strings and vice-versa.
 
-Example Date Strings
---------------------
-* Oct 10 1970  
-* October 10 1970  
-* October 10 1970 5:30 PM  
-* Sat, Oct 10 1970 5:30 PM  
-* Saturday, October 10 1970 5:30 PM
+## Resources
 
-Notes
------
-Only date strings that conform to the formats above are valid.  
-The microservice can ONLY be accessed via GET requests.  
-The microservice supports CORS requests from any origin.
+### GET /:dateValue
+
+Returns both the Unix timestamp and the natural language form of the dateValue
+
+If the dateValue is neither a date nor a Unix timestamp, then it returns null properties
+
+Example request URLs:
+
+`https://timestamp-microservice.example.com/24364800`  
+`https://timestamp-microservice.example.com/January 18, 2013`
+
+#### Responses
+
+**STATUS 200** - application/json
+
+##### EXAMPLE
+
+    {
+      unix: 24364800,
+      natural: October 10, 1970
+    }

@@ -1,52 +1,85 @@
 'use strict';
 
-const assert = require('assert');
-const request = require('supertest');
+import test from 'tape';
+import { expect } from 'chai';
+import request from 'supertest';
+import app from './../src/app.js';
 
-const server = require('./../app.js').listen();
+const server = app.listen();
 
-function timestamp(dateValue) {
-  const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+test(app.name, (t) => {
+  const tests = [
+    (t, dateValue) => {
+      request(server)
+        .get('/' + dateValue)
+        .expect('Content-Type', /json/)
+        .end((err) => t.ifError(err, 'content-type should be json'));
+    },
+    (t, dateValue) => {
+      request(server)
+        .get('/' + dateValue)
+        .expect((res) => expect(res.body).to.have.all.keys([
+          'unix',
+          'natural'
+        ]))
+        .end((err) => t.ifError(err, 'response properties should consist of all and only the specified properties'));
+    }
+  ];
+  const testCases = [
+    {
+      dateValue: 24364800,
+      message: 'for unix timestamps',
+      tests: tests.concat([
+        (t, dateValue) => {
+          request(server)
+            .get('/' + dateValue)
+            .expect((res) => expect(res.body).to.deep.equal({
+              unix: 24364800,
+              natural: 'October 10, 1970'
+            }))
+            .end((err) => t.ifError(err, 'response values should be equivalent to the specified dateValue'));
+        }
+      ])
+    },
+    {
+      dateValue: 'January 18, 2013',
+      message: 'for natural language dates',
+      tests: tests.concat([
+        (t, dateValue) => {
+          request(server)
+            .get('/' + dateValue)
+            .expect((res) => expect(res.body).to.deep.equal({
+              unix: 1358467200,
+              natural: 'January 18, 2013'
+            }))
+            .end((err) => t.ifError(err, 'response values should be equivalent to the specified dateValue'));
+        }
+      ])
+    },
+    {
+      dateValue: 'asd qw 101',
+      message: 'for invalid dates',
+      tests: tests.concat([
+        (t, dateValue) => {
+          request(server)
+            .get('/' + dateValue)
+            .expect((res) => expect(res.body).to.deep.equal({
+              unix: null,
+              natural: null
+            }))
+            .end((err) => t.ifError(err, 'response values should be null'));
+        }
+      ])
+    }
   ];
 
-  return function (res) {
-    const date = isNaN(dateValue) ? new Date(dateValue) : new Date(dateValue * 1000);
-    const unix = isNaN(dateValue) ? date.getTime() / 1000 : dateValue;
-    const natural = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  testCases.forEach((testCase) => {
+    t.test(testCase.message, (t) => {
+      t.plan(testCase.tests.length);
 
-    assert.strictEqual(res.body.unix, unix);
-    assert.strictEqual(res.body.natural, natural);
-  };
-}
-
-describe('app', function () {
-  it('should respond with json when given a path', function (done) {
-    request(server)
-      .get('/path')
-      .expect('Content-Type', 'application/json; charset=utf-8', done);
-  });
-
-  it('should process unix timestamps', function (done) {
-    let dateValue = 24364800;
-    request(server)
-      .get(`/${dateValue}`)
-      .expect(timestamp(dateValue))
-      .end(done);
-  });
-
-  it('should process natural language dates', function (done) {
-    let dateValue = 'October 10, 1970';
-    request(server)
-      .get(`/${dateValue}`)
-      .expect(timestamp(dateValue))
-      .end(done);
-  });
-
-  it('should return null for non-dates', function (done) {
-    request(server)
-      .get('/asd qw 101')
-      .expect({unix: null, natural: null}, done);
+      testCase.tests.forEach((test) => test(t, testCase.dateValue));
+    });
   });
 });
+
+test.onFinish(() => server.close());
