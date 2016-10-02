@@ -1,6 +1,6 @@
 # Timestamp Microservice
 
-Timestamp Microservice converts Unix timestamps to date strings and vice-versa.
+Timestamp Microservice is a REST API which converts Unix timestamps to date strings and vice-versa.
 
 ## Resources
 
