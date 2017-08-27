@@ -1,27 +1,76 @@
 # Timestamp Microservice
 
-Timestamp Microservice is a REST API which converts Unix timestamps to date strings and vice-versa.
+Convert date strings to Unix timestamps and a natural language (RFC-1123)
+format.
 
-## Resources
+## How it Works
 
-### GET /:dateValue
+This microservice uses [Moment][1] to validate input and format output and
+[koa-router][2] to capture path parameters and, along with [Koa][3], serve
+requests.
 
-Returns both the Unix timestamp and the natural language form of the dateValue
+[1]: https://momentjs.com/
+[2]: https://github.com/alexmingoia/koa-router
+[3]: http://koajs.com/
 
-If the dateValue is neither a date nor a Unix timestamp, then it returns null properties
+### Valid Formats
 
-Example request URLs:
+| Format         | Example    |
+|----------------|------------|
+| Unix Timestamp | 1450137600 |
+| [ISO-8601][4]  | 2015-12-25 |
 
-`https://timestamp-microservice.example.com/24364800`  
-`https://timestamp-microservice.example.com/January 18, 2013`
+_Note_: Unix timestamps have precedence over the ISO-8601 format, so a string
+such as "20130208" will be parsed as a unix timestamp.
 
-#### Responses
+[4]: http://www.cl.cam.ac.uk/~mgk25/iso-time.html
 
-**STATUS 200** - application/json
+## How to Use
 
-##### EXAMPLE
+`app.js` exports a Koa app. Koa apps have an [`app.listen()`][5] method that is
+identical to Node's [http.Server.listen()][6].
+
+Import `app.js` and call `app.listen()` to start up the microservice.
+
+[5]: http://koajs.com/#app-listen-
+[6]: https://nodejs.org/api/http.html#http_server_listen_port_hostname_backlog_callback
+
+## API Resources
+
+### GET /
+
+Returns a `Timestamp` object based on the current time.
+
+#### REQUEST
+
+__Sample__: `https://timestamp-microservice.example.com/`
+
+#### RESPONSE
+
+__Status__: 200 - `application-json`
+
+__Response__:
 
     {
-      unix: 24364800,
-      natural: October 10, 1970
+      "unix": 1498953600,
+      "natural": "Sun, 02 Jul 2017 00:00:00 GMT"
+    }
+
+### GET /:date
+
+Returns a `Timestamp` object based on `date`.
+
+#### REQUEST
+
+__Sample__: `https://timestamp-microservice.example.com/1450137600`
+
+#### RESPONSE
+
+__Status__: 200 - `application-json`
+
+__Response__:
+
+    {  
+      "unix": 1450137600,
+      "natural": "Tue, 15 Dec 2015 00:00:00 GMT"
     }
